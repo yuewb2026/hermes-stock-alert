@@ -1,0 +1,28 @@
+name: Hermes Stock Monitor
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "*/10 * * * *"
+
+jobs:
+  check-hermes:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check Hermes Lindy
+        env:
+          NTFY_TOPIC: ${{ secrets.NTFY_TOPIC2 }}
+        run: |
+          URL="https://www.hermes.com/fr/fr/product/sac-lindy-26-H073428CC18/"
+
+          PAGE=$(curl -L -A "Mozilla/5.0" -s "$URL")
+
+          if echo "$PAGE" | grep -qi "Ajouter au panier"; then
+            curl \
+              -H "Title: 👜 HERMÈS Lindy 26 disponible !" \
+              -H "Priority: max" \
+              -H "Click: $URL" \
+              -d "Lindy 26 semble disponible sur Hermès France. Ouvre immédiatement le lien." \
+              "https://ntfy.sh/$NTFY_TOPIC"
+          fi
