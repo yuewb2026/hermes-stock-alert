@@ -1,0 +1,17 @@
+name: Test NTFY
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Send test notification
+        run: |
+          curl \
+            -H "Title: Hermes Alert Test" \
+            -H "Priority: high" \
+            -d "Hermès监测系统测试成功 👜" \
+            "https://ntfy.sh/${{ secrets.NTFY_TOPIC2 }}"
