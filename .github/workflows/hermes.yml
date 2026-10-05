@@ -16,24 +16,46 @@ jobs:
         run: |
           URL="https://www.hermes.com/fr/fr/product/sac-lindy-26-H073428CC18/"
 
-          PAGE=$(curl -L -A "Mozilla/5.0" -s "$URL")
-
           echo "Checking Hermes page..."
+          PAGE=$(curl -L \
+            --max-time 30 \
+            -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/154.0 Safari/537.36" \
+            -s "$URL")
+
+          echo "Page size: ${#PAGE} characters"
+
+          if [ -z "$PAGE" ]; then
+            echo "⚠️ Hermes returned an empty page"
+            exit 1
+          fi
+
+          UNAVAILABLE=0
+          CART=0
 
           if echo "$PAGE" | grep -qi "Malheureusement ce produit n'est plus disponible"; then
-            echo "❌ Product unavailable"
-            exit 0
+            UNAVAILABLE=1
           fi
 
           if echo "$PAGE" | grep -qi "Ajouter au panier"; then
-            echo "🟢 Product appears available!"
+            CART=1
+          fi
+
+          echo "Unavailable text: $UNAVAILABLE"
+          echo "Cart text: $CART"
+
+          if [ "$CART" -eq 1 ] && [ "$UNAVAILABLE" -eq 0 ]; then
+            echo "🟢 POSSIBLE STOCK"
 
             curl \
               -H "Title: 👜 HERMÈS Lindy 26 disponible !" \
               -H "Priority: max" \
               -H "Click: $URL" \
-              -d "Lindy 26 semble disponible sur Hermès France. Ouvre immédiatement le lien." \
+              -d "Lindy 26 semble disponible sur Hermès France. Vérifie immédiatement." \
               "https://ntfy.sh/$NTFY_TOPIC"
+
+          elif [ "$CART" -eq 1 ] && [ "$UNAVAILABLE" -eq 1 ]; then
+            echo "⚠️ Cart + unavailable text detected"
+            echo "Manual verification required"
 
           else
             echo "❌ No stock"
