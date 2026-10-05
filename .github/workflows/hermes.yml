@@ -20,7 +20,7 @@ jobs:
           echo "Page length: ${#RESPONSE}"
 
           if echo "$RESPONSE" | grep -q "Ajouter au panier"; then
-            echo "🟢 Ajouter au panier found"
+            echo "STOCK FOUND"
           else
-            echo "🔴 Ajouter au panier NOT found"
+            echo "NO STOCK"
           fi
