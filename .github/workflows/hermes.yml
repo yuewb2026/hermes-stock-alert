@@ -10,17 +10,17 @@ jobs:
     steps:
       - name: Check Hermes product
         run: |
-          URL="https://www.hermes.com/fr/fr/product/bracelet-apple-watch-hermes-simple-tour-42mm-H0003241O89/"
+          echo "Checking Hermes..."
 
-          echo "Checking:"
-          echo "$URL"
+          curl -L -A "Mozilla/5.0" "https://www.hermes.com/fr/fr/product/bracelet-apple-watch-hermes-simple-tour-42mm-H0003241O89/" -o hermes.html
 
-          RESPONSE=$(curl -L -A "Mozilla/5.0" "$URL")
+          echo "Page length:"
+          wc -c hermes.html
 
-          echo "Page length: ${#RESPONSE}"
+          echo "Checking product page..."
 
-          if echo "$RESPONSE" | grep -q "Ajouter au panier"; then
-            echo "STOCK FOUND"
+          if grep -q "Ajouter au panier" hermes.html; then
+            echo "🟢 STOCK FOUND"
           else
-            echo "NO STOCK"
+            echo "🔴 NO STOCK"
           fi
