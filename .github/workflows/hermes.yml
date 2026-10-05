@@ -1,1 +1,26 @@
-https://www.hermes.com/fr/fr/product/bracelet-apple-watch-hermes-simple-tour-42mm-H0003241O89/
+name: Hermes Test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check Hermes product
+        run: |
+          URL="https://www.hermes.com/fr/fr/product/bracelet-apple-watch-hermes-simple-tour-42mm-H0003241O89/"
+
+          echo "Checking:"
+          echo "$URL"
+
+          RESPONSE=$(curl -L -A "Mozilla/5.0" "$URL")
+
+          echo "Page length: ${#RESPONSE}"
+
+          if echo "$RESPONSE" | grep -q "Ajouter au panier"; then
+            echo "🟢 Ajouter au panier found"
+          else
+            echo "🔴 Ajouter au panier NOT found"
+          fi
