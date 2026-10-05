@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check Hermes Lindy
+      - name: Check Hermes Lindy 26
         env:
           NTFY_TOPIC: ${{ secrets.NTFY_TOPIC2 }}
         run: |
@@ -18,11 +18,23 @@ jobs:
 
           PAGE=$(curl -L -A "Mozilla/5.0" -s "$URL")
 
+          echo "Checking Hermes page..."
+
+          if echo "$PAGE" | grep -qi "Malheureusement ce produit n'est plus disponible"; then
+            echo "❌ Product unavailable"
+            exit 0
+          fi
+
           if echo "$PAGE" | grep -qi "Ajouter au panier"; then
+            echo "🟢 Product appears available!"
+
             curl \
               -H "Title: 👜 HERMÈS Lindy 26 disponible !" \
               -H "Priority: max" \
               -H "Click: $URL" \
               -d "Lindy 26 semble disponible sur Hermès France. Ouvre immédiatement le lien." \
               "https://ntfy.sh/$NTFY_TOPIC"
+
+          else
+            echo "❌ No stock"
           fi
